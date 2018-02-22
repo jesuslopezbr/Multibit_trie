@@ -1,5 +1,9 @@
+<<<<<<< HEAD
 #include "io.h"
 //hola hola
+=======
+#include "io.c "
+>>>>>>> b0967c157c816200eb0128fe20c0871febcf0695
 
 #define F_TABLE_ENTRIES 16777216 //2^24
 #define S_TABLE_ENTRIES 6400000 //2^8 * 25000
