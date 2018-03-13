@@ -31,6 +31,7 @@ void fill_FIB()
 	prefixLength = calloc(1,sizeof(int));
 	outInterface = calloc(1,sizeof(int));
   long int hosts = 0;
+  extended_IPs = 0;
 
   error = readFIBLine(prefix, prefixLength, outInterface);
 
@@ -40,6 +41,7 @@ void fill_FIB()
     {
       hosts = pow(2, 24 - *prefixLength);
 
+      //Fill the interface field of the first table for each IP
       for(ip_index = 0; ip_index < hosts; ip_index++)
 			{
 				f_table[(*prefix>>8) + ip_index] = *outInterface;
@@ -48,6 +50,7 @@ void fill_FIB()
     else
     {
       hosts = pow(2, 32 - *prefixLength);
+
       if(f_table[*prefix>>8]>>15 == 0)
       {
         s_table = realloc(s_table, 256*(extended_IPs + 1)*2);
@@ -86,7 +89,20 @@ void fill_FIB()
 //LOOK FOR AN INTERFACE AND A TABLE FOR AN SPECIFIC IP ADDRESS
 void lookup(uint32_t *IP_lookup, short int *numberOfTableAccesses, unsigned short *out_Interface)
 {
-  //LOOKUP
+  *out_Interface = f_table[*IP_lookup>>8];
+  if(*out_Interface>>15 == 0)
+	{
+		*numberOfTableAccesses = 1;
+		return;
+	}
+	else
+	{
+		*numberOfTableAccesses = 2;
+		*out_Interface = s_table[(*out_Interface & 0x7FFF)*256 + (*IP_lookup & 0x000000FF)];
+		// 0x7fff = 0b0111111111111111 to adquire just the address to the 2nd table
+		return;
+	}
+	return;
 }
 
 //LOOK FOR THE BEST INTERFACE FOR EACH IP ADDRESS (ROUTES)
@@ -101,14 +117,16 @@ void routing()
 
   while(error == OK)
   {
-    //START TIME HERE (INITIAL TIME)
+    //START TIME (INITIAL TIME)
+    gettimeofday(&initialTime, NULL);
     lookup(IP_lookup, numberOfTableAccesses, out_Interface);
     //END TIME HERE (FINAL TIME)
+    gettimeofday(&finalTime, NULL);
     printOutputLine(*IP_lookup, *out_Interface, &initialTime, &finalTime,
                     searchingTime, *numberOfTableAccesses);
-    /*
-          ....
-    */
+    *processedPackets = *processedPackets + 1;
+    *totalTableAccesses  = *totalTableAccesses + *numberOfTableAccesses;
+    *totalPacketProcessingTime  = *totalPacketProcessingTime + *searchingTime;
 
     //READ ANOTHER LINE
     error = readInputPacketFileLine(IP_lookup);
@@ -131,6 +149,7 @@ int main(int argc, char *argv[])
   processedPackets  = calloc(1,sizeof(int));
 	totalTableAccesses  = calloc(1,sizeof(double));
 	totalPacketProcessingTime  = calloc(1,sizeof(double));
+  error = 0;
 
   //INITIALIZE FILES
   error = initializeIO(argv[1], argv[2]);
