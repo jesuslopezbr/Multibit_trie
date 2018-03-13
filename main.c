@@ -76,7 +76,6 @@ void fill_FIB()
 				}
       }
     }
-
     //READ ANOTHER LINE
     error = readFIBLine(prefix, prefixLength, outInterface);
   }
@@ -120,13 +119,13 @@ void routing()
     //START TIME (INITIAL TIME)
     clock_gettime(CLOCK_REALTIME, &initialTime);
     lookup(IP_lookup, numberOfTableAccesses, out_Interface);
-    //END TIME HERE (FINAL TIME)
+    //END TIME (FINAL TIME)
     clock_gettime(CLOCK_REALTIME, &finalTime);
     printOutputLine(*IP_lookup, *out_Interface, &initialTime, &finalTime,
                     searchingTime, *numberOfTableAccesses);
     *processedPackets = *processedPackets + 1;
-    *totalTableAccesses  = *totalTableAccesses + *numberOfTableAccesses;
-    *totalPacketProcessingTime  = *totalPacketProcessingTime + *searchingTime;
+    *totalTableAccesses  += *numberOfTableAccesses;
+    *totalPacketProcessingTime  += *searchingTime;
 
     //READ ANOTHER LINE
     error = readInputPacketFileLine(IP_lookup);
@@ -140,6 +139,7 @@ void routing()
 
 int main(int argc, char *argv[])
 {
+  double averageTableAccesses, averagePacketProcessingTime;
 
   usage(argc);
 
@@ -158,16 +158,15 @@ int main(int argc, char *argv[])
     exit(-1);
   }
 
-  //FILL TABLES
   fill_FIB();
 
-  //COMPUTE ROUTES
   routing();
 
-  //SUMMARY
-  printSummary(*processedPackets, (*totalTableAccesses / *processedPackets), (*totalPacketProcessingTime / *processedPackets));
+  averageTableAccesses = (*totalTableAccesses / *processedPackets);
+  averagePacketProcessingTime = (*totalPacketProcessingTime / *processedPackets);
 
-  //FREE RESOURCES
+  printSummary(*processedPackets, averageTableAccesses, averagePacketProcessingTime);
+
   freeIO();
   free(f_table);
   free(s_table);
