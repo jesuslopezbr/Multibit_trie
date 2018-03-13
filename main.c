@@ -13,6 +13,7 @@ struct timespec initialTime, finalTime;
 int *processedPackets;
 double *totalTableAccesses;
 double *totalPacketProcessingTime;
+long ip_index;
 
 void usage(int argc)
 {
@@ -28,6 +29,7 @@ void fill_FIB()
   prefix = calloc(1,sizeof(int));
 	prefixLength = calloc(1,sizeof(int));
 	outInterface = calloc(1,sizeof(int));
+  long int hosts = 0;
 
   error = readFIBLine(prefix, prefixLength, outInterface);
 
@@ -37,6 +39,9 @@ void fill_FIB()
     /*
         ....
     */
+    if(*prefixLength <= 24){
+      hosts = pow(2, 24 - *prefixLength);
+    }
 
     //READ ANOTHER LINE
     error = readFIBLine(prefix, prefixLength, outInterface);

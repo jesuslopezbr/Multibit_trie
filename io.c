@@ -1,5 +1,4 @@
 #include "io.h"
-#include "utils.h"
 
 
 
@@ -12,7 +11,7 @@ static FILE *outputFile;
 
 /***********************************************************************
  * Write the input to the specified file (f) and the standard output
- * 
+ *
  * Use as fprintf(FILE *stream, const char *format, ...)
  *
  ***********************************************************************/
@@ -60,10 +59,10 @@ int initializeIO(char *routingTableName, char *inputFileName){
 
 
 /***********************************************************************
- * Close the input/output files 
+ * Close the input/output files
  ***********************************************************************/
 void freeIO() {
-	
+
 	fclose(inputFile);
   fclose(outputFile);
   fclose(routingTable);
@@ -72,7 +71,7 @@ void freeIO() {
 
 
 /***********************************************************************
- * Write explanation for error identifier (verbose mode) 
+ * Write explanation for error identifier (verbose mode)
  ***********************************************************************/
 void printIOExplanationError(int result){
 
@@ -108,12 +107,12 @@ void printIOExplanationError(int result){
  *
  * It should be noted that prefix, prefixLength and outInterface are
  * pointers since they are used as output parameters
- * 
+ *
  ***********************************************************************/
 int readFIBLine(uint32_t *prefix, int *prefixLength, int *outInterface){
-	
+
 	int n[4], result;
-	
+
 	result = fscanf(routingTable, "%i.%i.%i.%i/%i\t%i\n", &n[0], &n[1], &n[2], &n[3], prefixLength, outInterface);
 	if (result == EOF) return REACHED_EOF;
   else if (result != 6) return BAD_ROUTING_TABLE;
@@ -132,12 +131,12 @@ int readFIBLine(uint32_t *prefix, int *prefixLength, int *outInterface){
  *
  * Again, it should be noted that IPAddress is a pointer since it is used
  * as output parameter
- * 
+ *
  ***********************************************************************/
 int readInputPacketFileLine(uint32_t *IPAddress){
 
   int n[4], result;
-	
+
 	result = fscanf(inputFile, "%i.%i.%i.%i\n", &n[0], &n[1], &n[2], &n[3]);
 	if (result == EOF) return REACHED_EOF;
   else if (result != 4) return BAD_INPUT_FILE;
@@ -166,7 +165,7 @@ int readInputPacketFileLine(uint32_t *IPAddress){
                         double *searchingTime, int numberOfTableAccesses) {
 
   unsigned long sec, nsec;
-  
+
   nsec = finalTime->tv_nsec - initialTime->tv_nsec;
     if (nsec < 0){
     	initialTime->tv_sec += 1;
@@ -175,10 +174,10 @@ int readInputPacketFileLine(uint32_t *IPAddress){
     sec = finalTime->tv_sec - initialTime->tv_sec;
 
     *searchingTime = 1e9*sec + nsec;
-  
+
 	//remember that output interface equals 0 means no matching
 	//remember that if no matching but default route is specified in the FIB, the default output interface
-	//must be stored to avoid dropping the packet (i.e., MISS)  
+	//must be stored to avoid dropping the packet (i.e., MISS)
   if (!outInterface)
     tee(outputFile,"%i.%i.%i.%i;%s;%i;%.0lf\n",IPAddress >> 24, (IPAddress >> 16) & 0x000000ff, (IPAddress >> 8) & 0x000000ff, IPAddress & 0x000000ff , "MISS",numberOfTableAccesses, *searchingTime);
 	else
@@ -195,8 +194,8 @@ int readInputPacketFileLine(uint32_t *IPAddress){
  * 		averageTableAccesses = totalTableAccesses/processedPackets
  *
  *		averagePacketProcessingTime = totalPacketProcessingTime/processedPackets
- * 
- ***********************************************************************/                          
+ *
+ ***********************************************************************/
 void printSummary(int processedPackets, double averageTableAccesses, double averagePacketProcessingTime){
 	tee(outputFile, "\nPackets processed= %i\n", processedPackets);
   tee(outputFile, "Average table accesses= %.2lf\n", averageTableAccesses);
@@ -211,7 +210,7 @@ void printSummary(int processedPackets, double averageTableAccesses, double aver
  *
  * For more info: man getrusage
  *
- ***********************************************************************/   
+ ***********************************************************************/
 void printMemoryTimeUsage(){
 
 	float    user_time, system_time;
@@ -231,6 +230,3 @@ void printMemoryTimeUsage(){
   }
 
 }
-
-
-

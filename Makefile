@@ -1,4 +1,4 @@
-SRC = my_route_lookup.c io.c io.h utils.c utils.h
+SRC = main.c io.c
 CFLAGS = -Wall -O3
 
 all: my_route_lookup
@@ -10,4 +10,3 @@ my_route_lookup: $(SRC)
 
 clean:
 	rm -f my_route_lookup
-
