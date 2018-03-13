@@ -167,7 +167,7 @@ int readInputPacketFileLine(uint32_t *IPAddress){
   unsigned long sec, nsec;
 
   nsec = finalTime->tv_nsec - initialTime->tv_nsec;
-    if (nsec < 0){
+    if (nsec > finalTime->tv_nsec){
     	initialTime->tv_sec += 1;
   	  nsec = 1e9 - nsec;
     }
