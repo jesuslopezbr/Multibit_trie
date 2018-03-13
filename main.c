@@ -1,7 +1,7 @@
 #include "io.h"
 
 #define F_TABLE_ENTRIES 16777216 //2^24
-#define S_TABLE_ENTRIES 6400000 //2^8 * 25000
+// S_TABLE_ENTRIES 6400000 //2^8 * 25000
 
 int error;
 short *f_table;
@@ -118,10 +118,10 @@ void routing()
   while(error == OK)
   {
     //START TIME (INITIAL TIME)
-    gettimeofday(&initialTime, NULL);
+    clock_gettime(CLOCK_REALTIME, &initialTime);
     lookup(IP_lookup, numberOfTableAccesses, out_Interface);
     //END TIME HERE (FINAL TIME)
-    gettimeofday(&finalTime, NULL);
+    clock_gettime(CLOCK_REALTIME, &finalTime);
     printOutputLine(*IP_lookup, *out_Interface, &initialTime, &finalTime,
                     searchingTime, *numberOfTableAccesses);
     *processedPackets = *processedPackets + 1;
@@ -145,7 +145,6 @@ int main(int argc, char *argv[])
 
   //RESERVE DINAMIC MEMORY
   f_table = calloc(F_TABLE_ENTRIES, sizeof(short));
-  //s_table = malloc(S_TABLE_ENTRIES);
   processedPackets  = calloc(1,sizeof(int));
 	totalTableAccesses  = calloc(1,sizeof(double));
 	totalPacketProcessingTime  = calloc(1,sizeof(double));
