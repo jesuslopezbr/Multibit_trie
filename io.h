@@ -21,6 +21,7 @@
 #define BAD_INPUT_FILE -3004
 #define PARSE_ERROR -3005
 #define CANNOT_CREATE_OUTPUT -3006
+#define F_TABLE_ENTRIES 16777216 //2^24
 
 /***********************************************************************
  * Write the input to the specified file (f) and the standard output

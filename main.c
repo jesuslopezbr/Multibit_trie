@@ -1,8 +1,5 @@
 #include "io.h"
 
-#define F_TABLE_ENTRIES 16777216 //2^24
-// S_TABLE_ENTRIES 6400000 //2^8 * 25000
-
 int error;
 short *f_table;
 short *s_table;
