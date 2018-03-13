@@ -179,9 +179,9 @@ int readInputPacketFileLine(uint32_t *IPAddress){
 	//remember that if no matching but default route is specified in the FIB, the default output interface
 	//must be stored to avoid dropping the packet (i.e., MISS)
   if (!outInterface)
-    tee(outputFile,"%i.%i.%i.%i;%s;%i;%.0lf\n",IPAddress >> 24, (IPAddress >> 16) & 0x000000ff, (IPAddress >> 8) & 0x000000ff, IPAddress & 0x000000ff , "MISS",numberOfTableAccesses, *searchingTime);
+    fprintf(outputFile,"%i.%i.%i.%i;%s;%i;%.0lf\n",IPAddress >> 24, (IPAddress >> 16) & 0x000000ff, (IPAddress >> 8) & 0x000000ff, IPAddress & 0x000000ff , "MISS",numberOfTableAccesses, *searchingTime);
 	else
-	tee(outputFile,"%i.%i.%i.%i;%i;%i;%.0lf\n",IPAddress >> 24, (IPAddress >> 16) & 0x000000ff, (IPAddress >> 8) & 0x000000ff, IPAddress & 0x000000ff , outInterface,numberOfTableAccesses, *searchingTime);
+	fprintf(outputFile,"%i.%i.%i.%i;%i;%i;%.0lf\n",IPAddress >> 24, (IPAddress >> 16) & 0x000000ff, (IPAddress >> 8) & 0x000000ff, IPAddress & 0x000000ff , outInterface,numberOfTableAccesses, *searchingTime);
 
 }
 
