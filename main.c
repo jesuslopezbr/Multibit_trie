@@ -6,6 +6,8 @@
 int error;
 short *f_table;
 short *s_table;
+unsigned short extended_IPs;
+long ip_index;
 uint32_t *prefix;
 int *prefixLength;
 int *outInterface;
@@ -13,7 +15,6 @@ struct timespec initialTime, finalTime;
 int *processedPackets;
 double *totalTableAccesses;
 double *totalPacketProcessingTime;
-long ip_index;
 
 void usage(int argc)
 {
@@ -35,12 +36,42 @@ void fill_FIB()
 
   while(error == OK)
   {
-    //FILLING HERE
-    /*
-        ....
-    */
-    if(*prefixLength <= 24){
+    if(*prefixLength <= 24)
+    {
       hosts = pow(2, 24 - *prefixLength);
+
+      for(ip_index = 0; ip_index < hosts; ip_index++)
+			{
+				f_table[(*prefix>>8) + ip_index] = *outInterface;
+			}
+    }
+    else
+    {
+      hosts = pow(2, 32 - *prefixLength);
+      if(f_table[*prefix>>8]>>15 == 0)
+      {
+        s_table = realloc(s_table, 256*(extended_IPs + 1)*2);
+
+        for(ip_index = 0; ip_index <= 255; ip_index++)
+        {
+          s_table[extended_IPs*256 + ip_index] = f_table[*prefix>>8];
+        }
+
+        f_table[*prefix>>8] = extended_IPs | 0x8000;
+
+        for(ip_index = (*prefix & 0xFF); ip_index < hosts + (*prefix & 0xFF); ip_index++)
+				{
+					s_table[extended_IPs*256 + ip_index] = *outInterface;
+				}
+				extended_IPs++;
+      }
+      else
+      {
+        for(ip_index = (*prefix & 0xFF); ip_index < hosts + (*prefix & 0xFF); ip_index++)
+				{
+					s_table[(f_table[*prefix>>8] & 0x7FFF)*256 + ip_index] = *outInterface;
+				}
+      }
     }
 
     //READ ANOTHER LINE
@@ -96,7 +127,7 @@ int main(int argc, char *argv[])
 
   //RESERVE DINAMIC MEMORY
   f_table = calloc(F_TABLE_ENTRIES, sizeof(short));
-  s_table = malloc(S_TABLE_ENTRIES);
+  //s_table = malloc(S_TABLE_ENTRIES);
   processedPackets  = calloc(1,sizeof(int));
 	totalTableAccesses  = calloc(1,sizeof(double));
 	totalPacketProcessingTime  = calloc(1,sizeof(double));
