@@ -197,9 +197,9 @@ int readInputPacketFileLine(uint32_t *IPAddress){
  *
  ***********************************************************************/
 void printSummary(int processedPackets, double averageTableAccesses, double averagePacketProcessingTime){
-	tee(outputFile, "\nPackets processed= %i\n", processedPackets);
-  tee(outputFile, "Average table accesses= %.2lf\n", averageTableAccesses);
-  tee(outputFile,"Average packet processing time (nsecs)= %.2lf\n", averagePacketProcessingTime);
+	fprintf(outputFile, "\nPackets processed= %i\n", processedPackets);
+  fprintf(outputFile, "Average table accesses= %.2lf\n", averageTableAccesses);
+  fprintf(outputFile,"Average packet processing time (nsecs)= %.2lf\n", averagePacketProcessingTime);
 	printMemoryTimeUsage();
 
 }
@@ -225,8 +225,8 @@ void printMemoryTimeUsage(){
   	system_time  = (float)usage.ru_stime.tv_sec+(float)usage.ru_stime.tv_usec/1000000.0;
   	memory = usage.ru_maxrss;
 
-  	tee(outputFile, "Memory (Kbytes) = %ld\n", memory );
-  	tee(outputFile, "CPU Time (secs)= %.6f\n\n", user_time+system_time);
+  	fprintf(outputFile, "Memory (Kbytes) = %ld\n", memory );
+  	fprintf(outputFile, "CPU Time (secs)= %.6f\n\n", user_time+system_time);
   }
 
 }
