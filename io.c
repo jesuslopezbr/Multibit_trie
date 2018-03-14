@@ -164,10 +164,10 @@ int readInputPacketFileLine(uint32_t *IPAddress){
  void printOutputLine(uint32_t IPAddress, int outInterface, struct timespec *initialTime, struct timespec *finalTime,
                         double *searchingTime, int numberOfTableAccesses) {
 
-  unsigned long sec, nsec;
+  long sec, nsec;
 
   nsec = finalTime->tv_nsec - initialTime->tv_nsec;
-    if (nsec > finalTime->tv_nsec){
+    if (nsec < 0){
     	initialTime->tv_sec += 1;
   	  nsec = 1e9 - nsec;
     }
