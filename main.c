@@ -29,6 +29,7 @@ void fill_FIB()
 	outInterface = calloc(1,sizeof(int));
   long int hosts = 0;
   extended_IPs = 0;
+  ip_index = 0;
 
   error = readFIBLine(prefix, prefixLength, outInterface);
 
