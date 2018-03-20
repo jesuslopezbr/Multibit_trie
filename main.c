@@ -24,6 +24,7 @@ void usage(int argc)
 //FILL FIRST TABLE & SECOND TABLE
 void fill_FIB()
 {
+  //Reserve dinamic memory for the output of the read FIB line
   ip_addr = calloc(1,sizeof(int));
 	prefixLength = calloc(1,sizeof(int));
 	outInterface = calloc(1,sizeof(int));
@@ -33,13 +34,14 @@ void fill_FIB()
 
   error = readFIBLine(ip_addr, prefixLength, outInterface);
 
-  while(error == OK)
+  while(error == OK)//While !(End Of File)
   {
     if(*prefixLength <= 24)
     {
+      //Calculate hosts in the first table
       hosts = pow(2, 24 - *prefixLength);
 
-      //Fill the interface field of the first table for each IP
+      //Fill the interface field of the first table for each host
       for(ip_index = 0; ip_index < hosts; ip_index++)
 			{
 				f_table[(*ip_addr>>8) + ip_index] = *outInterface;
@@ -47,29 +49,37 @@ void fill_FIB()
     }
     else
     {
+      //Calculate hosts in the second table
       hosts = pow(2, 32 - *prefixLength);
 
-      if(f_table[*ip_addr>>8]>>15 == 0)
+      if(f_table[*ip_addr>>8]>>15 == 0)//If 16th bit == 0
       {
+        //Resize s_table with 256 positions for the last byte
         s_table = realloc(s_table, 256*(ip_ext + 1)*2);
 
+        //Fill the second table with the first table's IPs for the last byte
         for(ip_index = 0; ip_index <= 255; ip_index++)
         {
           s_table[ip_ext*256 + ip_index] = f_table[*ip_addr>>8];
         }
 
+        //Update first table writing the index to the address of the second table
+        //and set the 16th bit by bit 1
         f_table[*ip_addr>>8] = ip_ext | 0x8000;
 
+        //Store the interface in each position of the second table
         for(ip_index = (*ip_addr & 0xFF); ip_index < hosts + (*ip_addr & 0xFF); ip_index++)
 				{
 					s_table[ip_ext*256 + ip_index] = *outInterface;
 				}
 				ip_ext++;
       }
-      else
+      else//If 16th bit == 1
       {
+        //It exists in the second table
         for(ip_index = (*ip_addr & 0xFF); ip_index < hosts + (*ip_addr & 0xFF); ip_index++)
 				{
+          //Writes in the second table the interface of the corresponding address
 					s_table[(f_table[*ip_addr>>8] & 0x7FFF)*256 + ip_index] = *outInterface;
 				}
       }
@@ -87,16 +97,19 @@ void fill_FIB()
 void lookup(uint32_t *ip_lookup, short int *numberOfTableAccesses, unsigned short *out_Interface)
 {
   *out_Interface = f_table[*ip_lookup>>8];
-  if(*out_Interface>>15 == 0)
+  if(*out_Interface>>15 == 0)//16th bit == 0
 	{
+    //First table's data is the interface
 		*numberOfTableAccesses = 1;
 		return;
 	}
 	else
 	{
+    //First table's data is the index of the second table
 		*numberOfTableAccesses = 2;
+    //Returns the content of the second table
 		*out_Interface = s_table[(*out_Interface & 0x7FFF)*256 + (*ip_lookup & 0x000000FF)];
-		// 0x7fff = 0b0111111111111111 to adquire just the address to the 2nd table
+		//0x7fff = 0b0111111111111111 --> To the address of the second table
 		return;
 	}
 	return;
@@ -165,6 +178,7 @@ int main(int argc, char *argv[])
 
   printSummary(*processedPackets, averageTableAccesses, averagePacketProcessingTime);
 
+  //FREE MAIN RESOURCES
   freeIO();
   free(f_table);
   free(s_table);
